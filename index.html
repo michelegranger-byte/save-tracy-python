@@ -31,4 +31,33 @@ advance=function(){const oldMission=state&&!state.done?Math.floor(state.index/3)
  else if(Math.floor(state.index/3)!==oldMission){const lines=['System diagnostics','Turning trap','Loop lockdown','Coordinate crisis','Final rescue'];sayTracy('Amazing! System repaired! Next mission: '+lines[Math.floor(state.index/3)]+'. You can do this!')}
 };
 window.addEventListener('beforeunload',()=>{if('speechSynthesis' in window)window.speechSynthesis.cancel()});
+
+// Classroom retake gate. This is a convenience control, not secure authentication.
+const RETAKE_CODE = 'TRACY2026'; // Teacher may customize this before publishing.
+function requestRetake(){
+ const entered=window.prompt('Teacher authorization required. Enter the retake code:');
+ if(entered===null)return;
+ if(entered!==RETAKE_CODE){window.alert('Incorrect code. Your current attempt is unchanged.');return;}
+ if(!window.confirm('Start a new attempt? This permanently replaces the saved answers and score on this browser. Save or screenshot the existing results first.'))return;
+ if('speechSynthesis' in window)window.speechSynthesis.cancel();
+ localStorage.removeItem(key);
+ state=null;selected=-1;
+ document.getElementById('game').style.display='none';
+ document.getElementById('finish').style.display='none';
+ document.getElementById('intro').style.display='block';
+ document.getElementById('student').value='';
+ window.scrollTo(0,0);
+ if(voiceEnabled)sayTracy('A new rescue mission awaits! Enter your name to begin again!');
+}
+const retakeButton=document.createElement('button');
+retakeButton.type='button';retakeButton.textContent='🔐 Teacher-Authorized Retake';
+retakeButton.onclick=requestRetake;
+const retakeWrap=document.createElement('div');
+retakeWrap.style.marginTop='20px';
+retakeWrap.appendChild(retakeButton);
+const retakeNote=document.createElement('p');
+retakeNote.className='muted';
+retakeNote.textContent='A retake replaces the previous attempt on this browser. Save a screenshot of the original score first.';
+retakeWrap.appendChild(retakeNote);
+document.getElementById('finish').appendChild(retakeWrap);
 </script></body></html>
